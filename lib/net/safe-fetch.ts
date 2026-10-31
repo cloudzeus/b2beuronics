@@ -122,6 +122,6 @@ function explain(e: unknown): Error {
   if (err.name === "TimeoutError" || code === "UND_ERR_CONNECT_TIMEOUT" || code === "UND_ERR_HEADERS_TIMEOUT") return new Error("Ο server δεν απάντησε εγκαίρως");
   if (code === "ENOTFOUND" || code === "EAI_AGAIN") return new Error("Δεν βρέθηκε ο server (λάθος διεύθυνση;)");
   if (code === "ECONNREFUSED") return new Error("Ο server αρνήθηκε τη σύνδεση (θύρα κλειστή ή firewall)");
-  if (code?.startsWith("ERR_TLS") || code?.includes("CERT")) return new Error("Πρόβλημα με το πιστοποιητικό SSL του server");
+  if (code && /^ERR_TLS|CERT|UNABLE_TO_VERIFY|SELF_SIGNED|ERR_SSL/.test(code)) return new Error("Πρόβλημα με το πιστοποιητικό SSL του server (ληγμένο, αυτο-υπογεγραμμένο ή ελλιπής αλυσίδα πιστοποιητικών)");
   return new Error(`Σφάλμα σύνδεσης: ${err.cause?.message ?? err.message ?? "άγνωστο"}`);
 }

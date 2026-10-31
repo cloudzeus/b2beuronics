@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-10-31T10:41:45.634Z",
+  "timestamp": "2026-10-31T10:50:48.922Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -17,66 +17,10 @@
   "decisions": [],
   "uncommitted_files": [
     {
-      "status": "??",
-      "path": ".env.example"
-    },
-    {
-      "status": "??",
-      "path": ".gitignore"
-    },
-    {
-      "status": "??",
-      "path": ".planning/"
-    },
-    {
-      "status": "??",
-      "path": "AGENTS.md"
-    },
-    {
-      "status": "??",
-      "path": "CLAUDE.md"
-    },
-    {
-      "status": "??",
-      "path": "app/"
-    },
-    {
-      "status": "??",
-      "path": "eslint.config.mjs"
-    },
-    {
-      "status": "??",
-      "path": "lib/"
-    },
-    {
-      "status": "??",
-      "path": "next.config.ts"
-    },
-    {
-      "status": "??",
-      "path": "package-lock.json"
-    },
-    {
-      "status": "??",
-      "path": "package.json"
-    },
-    {
-      "status": "??",
-      "path": "postcss.config.mjs"
-    },
-    {
-      "status": "??",
-      "path": "prisma/"
-    },
-    {
-      "status": "??",
-      "path": "scripts/"
-    },
-    {
-      "status": "??",
-      "path": "tsconfig.json"
+      "status": "M",
+      "path": ".planning/HANDOFF.json"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\nf5bd32e first commit"
+  "context_notes": "Recent commits:\n21aada4 Μηχανή διαθεσιμότητας μελών: Φάση 1 (συμβόλαιο, βάση, έλεγχος σύνδεσης, push API)\nf5bd32e first commit"
 }

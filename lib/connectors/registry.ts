@@ -1,3 +1,4 @@
+import "@/lib/zod-el";
 import { CONNECTION_TYPES, type ConnectionType } from "@/lib/contracts";
 import { feedUrl } from "./feed-url";
 import { manual, pushApi } from "./inbound";

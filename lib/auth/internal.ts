@@ -1,4 +1,3 @@
-import { Prisma } from "@prisma/client";
 import { db } from "@/lib/db";
 import { verify } from "@/lib/auth/hmac";
 import { clientIp, fail } from "@/lib/http";
@@ -25,12 +24,8 @@ export function internal<P>(handler: (req: Request, ctx: InternalCtx, route: P) 
     const v = verify(secret, req.headers, req.method, url.pathname + url.search, raw);
     if (!v.ok) return fail(401, `bad_${v.reason}`, "Μη έγκυρη υπογραφή");
 
-    try {
-      await db.requestNonce.create({ data: { nonce: v.nonce, expiresAt: v.expiresAt } });
-    } catch (e) {
-      if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") return fail(401, "replay", "Η υπογραφή έχει ήδη χρησιμοποιηθεί");
-      throw e;
-    }
+    const fresh = await db.requestNonce.createMany({ data: [{ nonce: v.nonce, expiresAt: v.expiresAt }], skipDuplicates: true });
+    if (!fresh.count) return fail(401, "replay", "Η υπογραφή έχει ήδη χρησιμοποιηθεί");
     // καθάρισμα των ληγμένων nonce: περίπου 1 στα 50 αιτήματα, χωρίς να καθυστερεί την απάντηση
     if (Math.random() < 0.02) void db.requestNonce.deleteMany({ where: { expiresAt: { lt: new Date() } } }).catch(() => {});
 

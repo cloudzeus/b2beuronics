@@ -1,3 +1,5 @@
+import "@/lib/zod-el";
+
 /** Κοινές απαντήσεις των endpoints: `{ error: { code, message, details? } }` με ελληνικό μήνυμα. */
 export function fail(status: number, code: string, message: string, details?: unknown) {
   return Response.json({ error: { code, message, ...(details === undefined ? {} : { details }) } }, { status, headers: { "Cache-Control": "no-store" } });

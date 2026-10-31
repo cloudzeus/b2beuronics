@@ -14,12 +14,9 @@ export type ApplyStatus = "applied" | "duplicate" | "stale";
 export async function applyEvent(ev: EngineEvent): Promise<ApplyStatus> {
   const at = new Date(ev.at);
   return db.$transaction(async (tx) => {
-    try {
-      await tx.inboxEvent.create({ data: { id: ev.id, type: ev.type, at } });
-    } catch (e) {
-      if (e instanceof Prisma.PrismaClientKnownRequestError && e.code === "P2002") return "duplicate";
-      throw e;
-    }
+    // ON CONFLICT DO NOTHING: το διπλότυπο είναι αναμενόμενο, όχι σφάλμα (και δεν γεμίζει τα logs)
+    const ins = await tx.inboxEvent.createMany({ data: [{ id: ev.id, type: ev.type, at }], skipDuplicates: true });
+    if (!ins.count) return "duplicate";
 
     switch (ev.type) {
       case "partner.upserted": {
