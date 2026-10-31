@@ -9,7 +9,7 @@
  ERP / eshop μελών ──pull (API, feed)── ┐
                   ──push (POST /api/v1/stock)── ┤
                                                 ▼
-                          stock.euronics.gr (αυτό το repo, βάση euronics_stock)
+                          b2b.dgsmart.gr (αυτό το repo, βάση euronics_stock)
                           connectors · έλεγχος σύνδεσης · secrets · ακατέργαστα · (Φ2) αντιστοίχιση
                                  ▲ ① γεγονότα + εντολές (HMAC)        │ ② projection (Φ2)
                                  │                                     ▼
@@ -41,7 +41,8 @@
 
 - **Φάση 1 (έτοιμη)**:
   - Αντίγραφο μελών/καταστημάτων/συνδέσεων, αποθήκευση διαπιστευτηρίων.
-  - Έλεγχος σύνδεσης: SoftOne WS, WooCommerce, feed URL, push API, ανέβασμα αρχείου. Οι υπόλοιποι τύποι παίρνουν «review».
+  - Προσφέρονται στα μέλη (`available`): **XML / Excel / CSV / JSON** σε διεύθυνση (`feed-url`), **ανέβασμα αρχείου** Excel/CSV/XML (`manual`), **SoftOne WS**, **WooCommerce** — όλοι με αυτόματο έλεγχο.
+  - Το push API υπάρχει και λειτουργεί, αλλά δεν προσφέρεται ακόμη· οι υπόλοιποι τύποι παίρνουν «review».
   - Κλειδιά push, αντιστοίχιση τοποθεσιών, λήψη push και ανεβασμάτων.
 - **Φάση 2**:
   - Κατάλογος ταυτοτήτων από το eshop (variantId, EAN, MPN, μάρκα) και αντιστοίχιση προϊόντων (`PartnerProductLink`).

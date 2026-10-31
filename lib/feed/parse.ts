@@ -1,25 +1,51 @@
 import { XMLParser } from "fast-xml-parser";
+import iconv from "iconv-lite";
 import type { Location, StockRow } from "@/lib/contracts";
+import { isLegacyXls, isZip, xlsxObjects } from "./xlsx";
 
 /**
- * Ανάλυση feed/αρχείου στοκ (XML, CSV, JSON) σε επίπεδες γραμμές, με πρόταση αντιστοίχισης πεδίων.
+ * Ανάλυση feed/αρχείου στοκ (XML, CSV, JSON, Excel .xlsx) σε επίπεδες γραμμές, με πρόταση αντιστοίχισης πεδίων.
  * Για τον έλεγχο σύνδεσης και τα ανεβάσματα· η πλήρης επεξεργασία (Φάση 2) χρησιμοποιεί την ίδια ανάλυση.
  */
-export type Format = "xml" | "csv" | "json";
+export type TextFormat = "xml" | "csv" | "json";
+export type Format = TextFormat | "xlsx";
 export type Flat = Record<string, string>;
 export type Parsed = { format: Format; rows: Flat[]; columns: string[] };
 
-export function detectFormat(text: string, contentType = ""): Format {
+export function detectFormat(text: string, contentType = ""): TextFormat {
   const t = text.trimStart();
   if (/json/i.test(contentType) || t.startsWith("{") || t.startsWith("[")) return "json";
   if (/xml/i.test(contentType) || t.startsWith("<")) return "xml";
   return "csv";
 }
 
-export function parseFeed(text: string, format: Format): Parsed {
+export function parseFeed(text: string, format: TextFormat): Parsed {
   const rows = format === "csv" ? parseCsv(text) : format === "json" ? largestArray(JSON.parse(text)) : largestArray(new XMLParser({ ignoreAttributes: false, attributeNamePrefix: "@", parseTagValue: false, trimValues: true }).parse(text));
   const columns = [...new Set(rows.slice(0, 200).flatMap((r) => Object.keys(r)))];
   return { format, rows, columns };
+}
+
+/** Όνομα μορφής για τα μηνύματα προς το μέλος. */
+export const formatLabel = (f: Format | "auto") => (f === "xlsx" ? "Excel" : f === "auto" ? "αρχείο" : f.toUpperCase());
+
+export type Encoding = "auto" | "utf8" | "win1253" | "iso-8859-7";
+
+/** Κείμενο από bytes: δηλωμένη κωδικοποίηση (header ή <?xml encoding?>) ή UTF-8. */
+export function decode(bytes: Buffer, enc: Encoding, contentType = ""): string {
+  const declared = (contentType.match(/charset=([\w-]+)/i)?.[1] ?? bytes.subarray(0, 200).toString("latin1").match(/encoding=["']([\w-]+)/i)?.[1] ?? "").toLowerCase();
+  const pick = enc !== "auto" ? enc : /1253/.test(declared) ? "win1253" : /8859-7/.test(declared) ? "iso-8859-7" : "utf8";
+  return pick === "utf8" ? bytes.toString("utf8") : iconv.decode(bytes, pick);
+}
+
+/** Αρχείο ή απάντηση feed σε γραμμές: αναγνωρίζει μόνο του το Excel από την υπογραφή zip. */
+export function parseBytes(bytes: Buffer, format: Format | "auto", encoding: Encoding = "auto", contentType = ""): Parsed {
+  if (isLegacyXls(bytes)) throw new Error("Το παλιό Excel (.xls) δεν υποστηρίζεται — αποθηκεύστε το ως .xlsx ή CSV");
+  if (format === "xlsx" || (format === "auto" && isZip(bytes))) {
+    const rows = xlsxObjects(bytes);
+    return { format: "xlsx", rows, columns: [...new Set(rows.slice(0, 200).flatMap((r) => Object.keys(r)))] };
+  }
+  const text = decode(bytes, encoding, contentType);
+  return parseFeed(text, format === "auto" ? detectFormat(text, contentType) : format);
 }
 
 /** Η μεγαλύτερη λίστα αντικειμένων μέσα στο δέντρο = τα προϊόντα. */

@@ -11,6 +11,8 @@ export interface ConnectorDef<C = unknown, S = unknown> {
   label: string;
   /** false = δεν υπάρχει ακόμη αυτόματος έλεγχος· το αποτέλεσμα είναι «review» και τη σύνδεση την ελέγχουμε εμείς */
   autoTest: boolean;
+  /** τύπος που προσφέρεται τώρα στα μέλη (Φάση 1: XML/Excel, SoftOne WS, WooCommerce) — οι υπόλοιποι μένουν στο συμβόλαιο για αργότερα */
+  available?: boolean;
   config: z.ZodType<C>;
   /** null = ο τύπος δεν έχει secrets */
   secrets: z.ZodType<S> | null;

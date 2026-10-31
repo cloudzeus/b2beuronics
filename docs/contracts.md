@@ -50,7 +50,7 @@ await fetch(ENGINE_URL + path, { method: "POST", headers: { "Content-Type": "app
 
 | Μέθοδος | Διαδρομή | Τι κάνει |
 |---|---|---|
-| GET | `/api/internal/v1/connectors` | τύποι σύνδεσης: ετικέτα, `autoTest`, JSON Schema για `config` και `secrets` (για τις φόρμες) |
+| GET | `/api/internal/v1/connectors` | τύποι σύνδεσης: ετικέτα, `autoTest`, `available` (προσφέρεται τώρα στα μέλη — Φάση 1: `feed-url`, `manual`, `softone-ws`, `woocommerce`), JSON Schema για `config` και `secrets` (για τις φόρμες) |
 | PUT | `/api/internal/v1/connections/:id/secrets` | `{ "secrets": { … } }` → έλεγχος με το σχήμα του τύπου, κρυπτογράφηση. Επιστρέφει μόνο `secretKeys` |
 | DELETE | `/api/internal/v1/connections/:id/secrets` | σβήσιμο διαπιστευτηρίων |
 | POST | `/api/internal/v1/connections/:id/test?by=<staffId\|b2bAccountId>` | έλεγχος τώρα (έως 90″) → `TestResult` |
@@ -59,7 +59,7 @@ await fetch(ENGINE_URL + path, { method: "POST", headers: { "Content-Type": "app
 | GET | `/api/internal/v1/connections/:id/push-keys` | κλειδιά (πρόθεμα, χρήση, ανάκληση), χωρίς το κλειδί |
 | DELETE | `/api/internal/v1/connections/:id/push-keys/:keyId` | ανάκληση, ισχύει αμέσως |
 | GET/PUT | `/api/internal/v1/connections/:id/locations` | αντιστοίχιση `{ map: [{ externalRef, storeId \| null }] }`, αντικαθίσταται ολόκληρη· μόνο καταστήματα του ίδιου μέλους |
-| POST | `/api/internal/v1/connections/:id/upload` | `{ filename, mode, format, content, map? }`, μόνο για τύπο `manual`. Το Excel το μετατρέπει σε CSV το eshop |
+| POST | `/api/internal/v1/connections/:id/upload` | `{ filename, mode, format, content \| contentBase64, map? }`, μόνο για τύπο `manual`. `content` = κείμενο CSV/JSON/XML· `contentBase64` = τα bytes του αρχείου (Excel .xlsx ή οποιοδήποτε από τα άλλα). Το παλιό .xls απορρίπτεται με μήνυμα |
 
 ### `TestResult`
 

@@ -33,6 +33,7 @@ export const softoneWs: ConnectorDef<Cfg, z.infer<typeof Secrets>> = {
   type: "softone-ws",
   label: "SoftOne (Web Services)",
   autoTest: true,
+  available: true,
   config: Config,
   secrets: Secrets,
   async test(ctx) {

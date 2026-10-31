@@ -4,7 +4,7 @@
 
 ## Στοιχεία
 
-- **Διεύθυνση**: `POST https://stock.euronics.gr/api/v1/stock`
+- **Διεύθυνση**: `POST https://b2b.dgsmart.gr/api/v1/stock`
 - **Κλειδί**: το παίρνετε από την πύλη B2B (Σύνδεση → Κλειδί API). Εμφανίζεται **μία φορά**, γι' αυτό φυλάξτε το. Αν χαθεί, εκδίδετε νέο και ανακαλείτε το παλιό.
 - **Headers**: `Authorization: Bearer eus_…` και `Content-Type: application/json`
 
@@ -49,7 +49,7 @@
 ## Δοκιμή
 
 ```bash
-curl -X POST https://stock.euronics.gr/api/v1/stock \
+curl -X POST https://b2b.dgsmart.gr/api/v1/stock \
   -H "Authorization: Bearer eus_ΤΟ_ΚΛΕΙΔΙ_ΣΑΣ" -H "Content-Type: application/json" \
   -d '{"mode":"delta","items":[{"sku":"TEST1","location":"01","qty":1}]}'
 ```

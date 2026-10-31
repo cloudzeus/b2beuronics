@@ -47,8 +47,9 @@ export const pushApi: ConnectorDef = {
 
 export const manual: ConnectorDef = {
   type: "manual",
-  label: "Ανέβασμα αρχείου",
+  label: "Ανέβασμα αρχείου (Excel / CSV / XML)",
   autoTest: true,
+  available: true,
   config: z.object({}).passthrough(),
   secrets: null,
   test: (ctx) => testInbound(ctx, "upload"),

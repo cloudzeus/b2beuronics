@@ -1,6 +1,6 @@
 # b2beuronics — μηχανή διαθεσιμότητας μελών Euronics
 
-Χωριστή υπηρεσία (`stock.euronics.gr`) με δική της βάση. Συνδέεται με τα ERP και τα eshop των μελών, κρατά τα διαπιστευτήριά τους, ελέγχει τις συνδέσεις και (Φάση 2) συγχρονίζει το απόθεμα ανά υποκατάστημα προς το eshop.
+Χωριστή υπηρεσία (`b2b.dgsmart.gr`) με δική της βάση. Συνδέεται με τα ERP και τα eshop των μελών, κρατά τα διαπιστευτήριά τους, ελέγχει τις συνδέσεις και (Φάση 2) συγχρονίζει το απόθεμα ανά υποκατάστημα προς το eshop.
 
 Η διαχείριση, η πύλη B2B, η είσοδος των μελών και το reporting είναι στο eshop (`euronics-redesign`). **Η μηχανή δεν έχει χρήστες.**
 
@@ -31,10 +31,10 @@ npm run dev                 # http://localhost:3100
 
 ## Deploy (Coolify, Railpack)
 
-- Repo `cloudzeus/b2beuronics`, branch `master`, domain `stock.euronics.gr`.
+- Repo `cloudzeus/b2beuronics`, branch `master`, domain `b2b.dgsmart.gr`.
 - Railpack: `npm ci` → `npm run build` → `npm run start`. Δεν υπάρχει Dockerfile.
 - Pre-deploy command: `npm run db:deploy`.
 - Healthcheck: `GET /api/health`.
 - Env: όπως το `.env.example`. **Χωρίς** `ALLOW_PRIVATE_NETWORK`.
-- Το `INTERNAL_HMAC_SECRET` μπαίνει ίδιο και στο eshop (`B2B_ENGINE_SECRET`), μαζί με `B2B_ENGINE_URL=https://stock.euronics.gr`.
+- Το `INTERNAL_HMAC_SECRET` μπαίνει ίδιο και στο eshop (`B2B_ENGINE_SECRET`), μαζί με `B2B_ENGINE_URL=https://b2b.dgsmart.gr`.
 - Το `INTERNAL_ALLOWED_IPS` παίρνει την IP του server του eshop.

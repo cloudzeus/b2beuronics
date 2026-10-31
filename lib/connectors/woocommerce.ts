@@ -15,6 +15,7 @@ export const woocommerce: ConnectorDef<z.infer<typeof Config>, z.infer<typeof Se
   type: "woocommerce",
   label: "WooCommerce",
   autoTest: true,
+  available: true,
   config: Config,
   secrets: Secrets,
   async test(ctx) {
