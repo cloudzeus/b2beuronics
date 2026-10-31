@@ -1,5 +1,6 @@
 import { z } from "zod";
 import { safeFetch } from "@/lib/net/safe-fetch";
+import { FieldMap } from "@/lib/contracts";
 import { formatLabel, locationsOf, parseBytes, suggestFields, toStockRows } from "@/lib/feed/parse";
 import { StepError, type ConnectorDef } from "./types";
 
@@ -10,6 +11,8 @@ const Config = z.object({
   encoding: z.enum(["auto", "utf8", "win1253", "iso-8859-7"]).default("auto"),
   /** όνομα header για το token, π.χ. X-Api-Key (αλλιώς Authorization: Bearer) */
   tokenHeader: z.string().regex(/^[A-Za-z0-9-]{1,40}$/).optional(),
+  /** αντιστοίχιση στηλών με το χέρι (από την πύλη)· ό,τι λείπει αναγνωρίζεται αυτόματα */
+  map: FieldMap.optional(),
 });
 const Secrets = z.object({ username: z.string().max(100).optional(), password: z.string().max(200).optional(), token: z.string().max(2000).optional() });
 
@@ -45,8 +48,12 @@ export const feedUrl: ConnectorDef<z.infer<typeof Config>, z.infer<typeof Secret
       const fmt = formatLabel(parsed.format);
       if (!parsed.rows.length) throw new StepError(`Δεν βρέθηκαν προϊόντα στο ${fmt}`);
       ctx.setTotal(parsed.rows.length);
-      const hints = suggestFields(parsed.columns, parsed.rows);
+      const manual = ctx.config.map ?? {};
+      const hints = { ...suggestFields(parsed.columns, parsed.rows), ...manual };
+      const lost = Object.entries(manual).filter(([, c]) => !parsed.columns.includes(String(c)));
+      if (lost.length) throw new StepError(`Η αντιστοίχιση δείχνει σε στήλες που δεν υπάρχουν πια στο αρχείο: ${lost.map(([f, c]) => `${f} → «${c}»`).join(", ")}`);
       ctx.setFieldHints(hints as Record<string, string>);
+      ctx.setColumns(parsed.columns, parsed.rows.slice(0, 5));
       const stock = toStockRows(parsed.rows, hints);
       ctx.setSample(stock.slice(0, 5));
       ctx.setLocations(hints.location ? locationsOf(stock) : [{ ref: "default", name: "Ενιαίο απόθεμα" }]);

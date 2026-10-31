@@ -18,7 +18,7 @@ export async function runConnectionTest(connectionId: string, requestedBy?: stri
   const def = connectorFor(conn.type);
   const startedAt = new Date();
   const steps: TestStep[] = [];
-  let sample: StockRow[] = [], locations: Location[] = [], total: number | null = null, fieldHints: Record<string, string> | undefined;
+  let sample: StockRow[] = [], locations: Location[] = [], total: number | null = null, fieldHints: Record<string, string> | undefined, columns: string[] | undefined, preview: Record<string, string>[] | undefined;
   let review = !def.autoTest, failedCritical = false;
 
   const step: TestCtx<unknown, unknown>["step"] = async (key, fn, opts) => {
@@ -65,6 +65,7 @@ export async function runConnectionTest(connectionId: string, requestedBy?: stri
       setLocations: (l) => { locations = l.slice(0, 500); },
       setTotal: (n) => { total = n; },
       setFieldHints: (h) => { fieldHints = h; },
+      setColumns: (c, p) => { columns = c.slice(0, 200); preview = p.slice(0, 5).map((r) => Object.fromEntries(Object.entries(r).slice(0, 200).map(([k, v]) => [k, String(v ?? "").slice(0, 200)]))); },
       markReview: () => { review = true; },
     };
     let timer: NodeJS.Timeout | undefined;
@@ -87,7 +88,7 @@ export async function runConnectionTest(connectionId: string, requestedBy?: stri
   const status = conn.status === "active" || conn.status === "paused" ? conn.status : outcome === "ok" ? "ok" : outcome === "failed" ? "failed" : "testing";
   await db.connection.update({ where: { id: connectionId }, data: { status, lastTestAt: startedAt, ...(outcome === "ok" ? { lastOkAt: startedAt } : {}) } });
 
-  return { testId: row.id, connectionId, outcome, steps, sample, locations, total, ...(fieldHints ? { fieldHints } : {}), startedAt: startedAt.toISOString(), durationMs };
+  return { testId: row.id, connectionId, outcome, steps, sample, locations, total, ...(fieldHints ? { fieldHints } : {}), ...(columns ? { columns, preview } : {}), startedAt: startedAt.toISOString(), durationMs };
 }
 
 function messageOf(e: unknown): string {

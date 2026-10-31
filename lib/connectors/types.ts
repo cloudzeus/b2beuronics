@@ -29,6 +29,8 @@ export interface TestCtx<C, S> {
   setLocations(locs: Location[]): void;
   setTotal(n: number | null): void;
   setFieldHints(h: Record<string, string>): void;
+  /** στήλες και ακατέργαστες γραμμές του αρχείου, για την οθόνη αντιστοίχισης */
+  setColumns(cols: string[], preview: Record<string, string>[]): void;
   /** ο τύπος δεν έχει αυτόματο έλεγχο — το αποτέλεσμα γίνεται «review» */
   markReview(): void;
 }

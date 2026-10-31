@@ -6,7 +6,7 @@
  */
 import { z } from "zod";
 
-export const CONTRACT_VERSION = "2026-10-31";
+export const CONTRACT_VERSION = "2026-10-31.2";
 
 // ---------- Τρόποι σύνδεσης ----------
 
@@ -125,10 +125,35 @@ export const TestResult = z.object({
   total: z.number().int().nullable(),
   /** για feed: προτεινόμενη αντιστοίχιση στηλών/πεδίων */
   fieldHints: z.record(z.string(), z.string()).optional(),
+  /** για feed/αρχείο: όλες οι στήλες και έως 5 ακατέργαστες γραμμές — για την αντιστοίχιση με το χέρι (μόνο στην άμεση απάντηση) */
+  columns: z.array(z.string()).optional(),
+  preview: z.array(z.record(z.string(), z.string())).max(5).optional(),
   startedAt: z.iso.datetime(),
   durationMs: z.number().int(),
 });
 export type TestResult = z.infer<typeof TestResult>;
+
+// ---------- Αντιστοίχιση στηλών (feed / αρχείο) ----------
+
+export const MAP_FIELDS = ["sku", "ean", "mpn", "brand", "title", "qty", "location"] as const;
+/** πεδίο δικό μας → στήλη στο αρχείο τους· όποιο λείπει αναγνωρίζεται αυτόματα */
+export const FieldMap = z.record(z.enum(MAP_FIELDS), z.string().min(1).max(200));
+export type FieldMap = z.infer<typeof FieldMap>;
+
+// ---------- Ιστορικό συγχρονισμών ----------
+
+export const BatchLog = z.object({
+  id: z.string(),
+  source: z.enum(["push", "upload", "pull"]),
+  mode: z.enum(["full", "delta"]),
+  accepted: z.number().int(),
+  rejected: z.number().int(),
+  bytes: z.number().int(),
+  status: z.string(),
+  error: z.string().nullable(),
+  receivedAt: z.iso.datetime(),
+});
+export type BatchLog = z.infer<typeof BatchLog>;
 
 // ---------- Push API: ERP μέλους → μηχανή ----------
 

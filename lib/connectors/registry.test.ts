@@ -25,7 +25,7 @@ function fakeCtx<C, S>(config: C, secrets: S | null) {
   const ctx: TestCtx<C, S> = {
     connectionId: "c1", config, secrets,
     step: async (key, fn) => { try { steps.push({ key, ok: true, message: await fn(), ms: 0 }); return true; } catch (e) { steps.push({ key, ok: false, message: (e as Error).message, ms: 0 }); return false; } },
-    setSample: (r) => { out.sample = r; }, setLocations: (l) => { out.locations = l; }, setTotal: (n) => { out.total = n; }, setFieldHints: (h) => { out.hints = h; }, markReview: () => {},
+    setSample: (r) => { out.sample = r; }, setLocations: (l) => { out.locations = l; }, setTotal: (n) => { out.total = n; }, setFieldHints: (h) => { out.hints = h; }, setColumns: () => {}, markReview: () => {},
   };
   return { ctx, out };
 }

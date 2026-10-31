@@ -1,6 +1,6 @@
 # Συμβόλαιο eshop ↔ μηχανή διαθεσιμότητας
 
-Έκδοση: `2026-10-31` (`CONTRACT_VERSION` στο `lib/contracts/index.ts`). Οι τύποι και τα σχήματα zod του αρχείου
+Έκδοση: `2026-10-31.2` (`CONTRACT_VERSION` στο `lib/contracts/index.ts`). Οι τύποι και τα σχήματα zod του αρχείου
 αυτού αντιγράφονται ως έχουν στο eshop (`lib/b2b-engine/contracts.ts`), μαζί με το `lib/auth/hmac.ts` για την υπογραφή.
 
 ## Υπογραφή (όλα τα `/api/internal/**`)
@@ -59,7 +59,8 @@ await fetch(ENGINE_URL + path, { method: "POST", headers: { "Content-Type": "app
 | GET | `/api/internal/v1/connections/:id/push-keys` | κλειδιά (πρόθεμα, χρήση, ανάκληση), χωρίς το κλειδί |
 | DELETE | `/api/internal/v1/connections/:id/push-keys/:keyId` | ανάκληση, ισχύει αμέσως |
 | GET/PUT | `/api/internal/v1/connections/:id/locations` | αντιστοίχιση `{ map: [{ externalRef, storeId \| null }] }`, αντικαθίσταται ολόκληρη· μόνο καταστήματα του ίδιου μέλους |
-| POST | `/api/internal/v1/connections/:id/upload` | `{ filename, mode, format, content \| contentBase64, map? }`, μόνο για τύπο `manual`. `content` = κείμενο CSV/JSON/XML· `contentBase64` = τα bytes του αρχείου (Excel .xlsx ή οποιοδήποτε από τα άλλα). Το παλιό .xls απορρίπτεται με μήνυμα |
+| POST | `/api/internal/v1/connections/:id/upload` | `{ filename, mode, format, content \| contentBase64, map? }`, μόνο για τύπο `manual`. `content` = κείμενο CSV/JSON/XML· `contentBase64` = τα bytes του αρχείου (Excel .xlsx ή οποιοδήποτε από τα άλλα). Το παλιό .xls απορρίπτεται με μήνυμα. `dryRun: true` → δεν αποθηκεύεται τίποτα· επιστρέφει `columns`, `preview` (5 ακατέργαστες γραμμές), `suggested`, `map`, `sample`, `locations`, `accepted/rejected` — για την οθόνη αντιστοίχισης |
+| GET | `/api/internal/v1/connections/:id/batches?limit=50&before=<ISO>` | ιστορικό συγχρονισμών (`BatchLog[]`, χωρίς δεδομένα), σύνοψη ανά ημέρα 30 ημερών (`days`) και `next` για την επόμενη σελίδα |
 
 ### `TestResult`
 
@@ -68,8 +69,12 @@ await fetch(ENGINE_URL + path, { method: "POST", headers: { "Content-Type": "app
   "steps": [{ "key": "reach | auth | read-sample | locations | config | received", "ok": true, "message": "…", "ms": 412 }],
   "sample": [{ "externalSku": "K1", "ean": "520…", "locationRef": "01", "qty": 4 }],
   "locations": [{ "ref": "01", "name": "Κεντρικό" }], "total": 5321, "fieldHints": { "sku": "code", "qty": "stock" },
+  "columns": ["code", "stock", "store"], "preview": [{ "code": "K1", "stock": "4", "store": "01" }],
   "startedAt": "…", "durationMs": 1830 }
 ```
+
+- `columns` / `preview` (feed): μόνο στην άμεση απάντηση, όχι στο ιστορικό· για την αντιστοίχιση στηλών με το χέρι.
+- Αντιστοίχιση στηλών: `config.map` στο `feed-url` (και `map` στο upload) = `FieldMap` `{ sku|ean|mpn|brand|title|qty|location: "<στήλη>" }`. Ό,τι λείπει αναγνωρίζεται αυτόματα· στήλη που δεν υπάρχει πια → αποτυχία του βήματος `read-sample` με το όνομά της.
 
 - `ok`: πέρασαν όλα τα κρίσιμα βήματα.
 - `review`: ο τύπος δεν έχει ακόμη αυτόματο έλεγχο (Entersoft, Epsilon, Galaxy, Shopify, Magento, OpenCart, PrestaShop, SFTP). Τη σύνδεση την εξετάζουμε εμείς.
