@@ -137,7 +137,7 @@ export type TestResult = z.infer<typeof TestResult>;
 
 export const MAP_FIELDS = ["sku", "ean", "mpn", "brand", "title", "qty", "location"] as const;
 /** πεδίο δικό μας → στήλη στο αρχείο τους· όποιο λείπει αναγνωρίζεται αυτόματα */
-export const FieldMap = z.record(z.enum(MAP_FIELDS), z.string().min(1).max(200));
+export const FieldMap = z.partialRecord(z.enum(MAP_FIELDS), z.string().min(1).max(200));
 export type FieldMap = z.infer<typeof FieldMap>;
 
 // ---------- Ιστορικό συγχρονισμών ----------

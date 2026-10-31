@@ -1,6 +1,6 @@
 {
   "version": "1.0",
-  "timestamp": "2026-10-31T11:22:34.929Z",
+  "timestamp": "2026-10-31T12:34:18.853Z",
   "source": "auto-postool",
   "partial": false,
   "phase": null,
@@ -19,48 +19,8 @@
     {
       "status": "M",
       "path": ".planning/HANDOFF.json"
-    },
-    {
-      "status": "M",
-      "path": "app/api/internal/v1/connections/[id]/upload/route.ts"
-    },
-    {
-      "status": "M",
-      "path": "app/api/internal/v1/connectors/route.ts"
-    },
-    {
-      "status": "M",
-      "path": "lib/connectors/feed-url.ts"
-    },
-    {
-      "status": "M",
-      "path": "lib/connectors/inbound.ts"
-    },
-    {
-      "status": "M",
-      "path": "lib/connectors/softone-ws.ts"
-    },
-    {
-      "status": "M",
-      "path": "lib/connectors/types.ts"
-    },
-    {
-      "status": "M",
-      "path": "lib/connectors/woocommerce.ts"
-    },
-    {
-      "status": "M",
-      "path": "lib/feed/parse.ts"
-    },
-    {
-      "status": "??",
-      "path": "lib/feed/xlsx.test.ts"
-    },
-    {
-      "status": "??",
-      "path": "lib/feed/xlsx.ts"
     }
   ],
   "next_action": null,
-  "context_notes": "Recent commits:\n335d38b Μηχανή: ήσυχα διπλότυπα, ελληνικά μηνύματα επικύρωσης, σαφές μήνυμα SSL\n21aada4 Μηχανή διαθεσιμότητας μελών: Φάση 1 (συμβόλαιο, βάση, έλεγχος σύνδεσης, push API)\nf5bd32e first commit"
+  "context_notes": "Recent commits:\n8d61c0b Αντιστοίχιση στηλών με το χέρι (feed config.map, upload map + dryRun), στήλες/προεπισκόπηση στο TestResult, ιστορικό συγχρονισμών (batches)\nfa2962d Φάση 1: Excel (.xlsx) σε feed και ανέβασμα, σημαία available για XML/Excel, SoftOne, WooCommerce, domain b2b.dgsmart.gr\n335d38b Μηχανή: ήσυχα διπλότυπα, ελληνικά μηνύματα επικύρωσης, σαφές μήνυμα SSL\n21aada4 Μηχανή διαθεσιμότητας μελών: Φάση 1 (συμβόλαιο, βάση, έλεγχος σύνδεσης, push API)\nf5bd32e first commit"
 }
