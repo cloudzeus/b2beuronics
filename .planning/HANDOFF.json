@@ -1,0 +1,82 @@
+{
+  "version": "1.0",
+  "timestamp": "2026-10-31T10:41:45.634Z",
+  "source": "auto-postool",
+  "partial": false,
+  "phase": null,
+  "phase_name": null,
+  "phase_dir": null,
+  "plan": null,
+  "task": null,
+  "total_tasks": null,
+  "status": "auto-checkpoint",
+  "completed_tasks": [],
+  "remaining_tasks": [],
+  "blockers": [],
+  "human_actions_pending": [],
+  "decisions": [],
+  "uncommitted_files": [
+    {
+      "status": "??",
+      "path": ".env.example"
+    },
+    {
+      "status": "??",
+      "path": ".gitignore"
+    },
+    {
+      "status": "??",
+      "path": ".planning/"
+    },
+    {
+      "status": "??",
+      "path": "AGENTS.md"
+    },
+    {
+      "status": "??",
+      "path": "CLAUDE.md"
+    },
+    {
+      "status": "??",
+      "path": "app/"
+    },
+    {
+      "status": "??",
+      "path": "eslint.config.mjs"
+    },
+    {
+      "status": "??",
+      "path": "lib/"
+    },
+    {
+      "status": "??",
+      "path": "next.config.ts"
+    },
+    {
+      "status": "??",
+      "path": "package-lock.json"
+    },
+    {
+      "status": "??",
+      "path": "package.json"
+    },
+    {
+      "status": "??",
+      "path": "postcss.config.mjs"
+    },
+    {
+      "status": "??",
+      "path": "prisma/"
+    },
+    {
+      "status": "??",
+      "path": "scripts/"
+    },
+    {
+      "status": "??",
+      "path": "tsconfig.json"
+    }
+  ],
+  "next_action": null,
+  "context_notes": "Recent commits:\nf5bd32e first commit"
+}

@@ -1,0 +1,32 @@
+@import "tailwindcss";
+
+/* Fluid τυπογραφία (κανόνας όλων των projects): 360px → 1280px, desktop = τιμή σχεδίου. Νέο μέγεθος → νέο token. */
+:root {
+  --fs-13: clamp(0.8125rem, 0.8994rem - 0.1087vw, 0.875rem);
+  --fs-14: clamp(0.875rem, 0.962rem - 0.1087vw, 0.9375rem);
+  --fs-22: clamp(1.0725rem, 0.9541rem + 0.5261vw, 1.375rem);
+  --background: #ffffff;
+  --foreground: #171717;
+}
+
+@theme inline {
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --text-sm: var(--fs-13);
+  --text-base: var(--fs-14);
+  --text-2xl: var(--fs-22);
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --background: #0a0a0a;
+    --foreground: #ededed;
+  }
+}
+
+body {
+  background: var(--background);
+  color: var(--foreground);
+  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+  font-size: var(--fs-14);
+}

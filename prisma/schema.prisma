@@ -1,0 +1,172 @@
+// Μηχανή διαθεσιμότητας μελών Euronics — βάση «euronics_stock», χωριστή από τη βάση του eshop.
+// Το eshop είναι master για μέλη/καταστήματα/συνδέσεις (ίδια id)· εδώ ζουν τα secrets, οι έλεγχοι, τα ακατέργαστα
+// δεδομένα και (Φάση 2) η αντιστοίχιση προϊόντων. Καμία προσωπική πληροφορία πελατών του eshop.
+
+generator client {
+  provider        = "prisma-client-js"
+  previewFeatures = ["relationJoins"]
+}
+
+datasource db {
+  provider  = "postgresql"
+  // η εφαρμογή μέσω PgBouncer (6432)· οι αλλαγές σχήματος (migrate) απευθείας στον Postgres (5432)
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+// ---------- Αντίγραφο από το eshop (γεγονότα ①) ----------
+
+/// Μέλος (πελάτης SoftOne με ΜΕΛΟΣ Α–Δ). id = Partner.id του eshop.
+model Partner {
+  id          String       @id
+  s1Trdr      Int?         @unique
+  name        String
+  afm         String?
+  active      Boolean      @default(true)
+  /// ο χρόνος του τελευταίου γεγονότος που εφαρμόστηκε — παλαιότερα γεγονότα αγνοούνται
+  eventAt     DateTime
+  stores      Store[]
+  connections Connection[]
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+}
+
+/// Κατάστημα = υποκατάστημα SoftOne (TRDBRANCH). id = Store.id του eshop.
+model Store {
+  id         String        @id
+  partnerId  String
+  partner    Partner       @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+  s1BranchId Int?          @unique
+  name       String
+  city       String?
+  active     Boolean       @default(true)
+  eventAt    DateTime
+  locations  LocationMap[]
+  createdAt  DateTime      @default(now())
+  updatedAt  DateTime      @updatedAt
+
+  @@index([partnerId])
+}
+
+/// Τρόπος διασύνδεσης ενός μέλους. id = Connection.id του eshop.
+model Connection {
+  id           String           @id
+  partnerId    String
+  partner      Partner          @relation(fields: [partnerId], references: [id], onDelete: Cascade)
+  type         String // ConnectionType (lib/contracts)
+  /// μη ευαίσθητα στοιχεία (URL, serial, εταιρεία, μορφή feed)
+  config       Json
+  /// AES-256-GCM (lib/crypto/secrets) — δεν επιστρέφονται ποτέ σε API, μόνο τα ονόματα των κλειδιών
+  secretsEnc   String?
+  secretKeys   String[]         @default([])
+  secretsSetAt DateTime?
+  storeIds     String[]         @default([])
+  active       Boolean          @default(true)
+  /// draft | testing | ok | failed | active | paused
+  status       String           @default("draft")
+  lastTestAt   DateTime?
+  lastOkAt     DateTime?
+  eventAt      DateTime
+  tests        ConnectionTest[]
+  pushKeys     PushKey[]
+  batches      InboundBatch[]
+  locations    LocationMap[]
+  createdAt    DateTime         @default(now())
+  updatedAt    DateTime         @updatedAt
+
+  @@index([partnerId])
+  @@index([status])
+}
+
+// ---------- Έλεγχοι σύνδεσης ----------
+
+/// Ένας έλεγχος: βήματα, δείγμα (έως 5 γραμμές, χωρίς προσωπικά δεδομένα), τοποθεσίες που βρέθηκαν.
+model ConnectionTest {
+  id           String     @id @default(cuid())
+  connectionId String
+  connection   Connection @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+  /// ok | failed | review
+  outcome      String
+  steps        Json
+  sample       Json
+  locations    Json
+  total        Int?
+  fieldHints   Json?
+  requestedBy  String? // staffId ή b2bAccountId από το eshop, για το ιστορικό
+  startedAt    DateTime
+  durationMs   Int
+
+  @@index([connectionId, startedAt])
+}
+
+/// Αντιστοίχιση «αποθήκη/υποκατάστημα στο σύστημά τους» → κατάστημα δικό μας. storeId null = αγνοείται.
+model LocationMap {
+  id           String     @id @default(cuid())
+  connectionId String
+  connection   Connection @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+  externalRef  String
+  storeId      String?
+  store        Store?     @relation(fields: [storeId], references: [id], onDelete: SetNull)
+  updatedAt    DateTime   @updatedAt
+
+  @@unique([connectionId, externalRef])
+}
+
+// ---------- Push API ----------
+
+/// Κλειδί με το οποίο το ERP του μέλους στέλνει στοκ. Φυλάμε μόνο το sha256· το κλειδί εμφανίζεται μία φορά.
+model PushKey {
+  id           String     @id @default(cuid())
+  connectionId String
+  connection   Connection @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+  prefix       String // τα πρώτα 12 ψηφία, για να το αναγνωρίζει ο χρήστης
+  hash         String     @unique
+  createdBy    String?
+  createdAt    DateTime   @default(now())
+  lastUsedAt   DateTime?
+  revokedAt    DateTime?
+
+  @@index([connectionId])
+}
+
+/// Ό,τι ήρθε (push ή ανέβασμα), συμπιεσμένο. Η Φάση 2 το επεξεργάζεται· στη Φάση 1 μετρά για τον έλεγχο.
+model InboundBatch {
+  id           String     @id @default(cuid())
+  connectionId String
+  connection   Connection @relation(fields: [connectionId], references: [id], onDelete: Cascade)
+  /// push | upload
+  source       String
+  /// full | delta
+  mode         String
+  accepted     Int
+  rejected     Int
+  bytes        Int
+  sha256       String
+  gz           Bytes
+  /// received | processed | failed
+  status       String     @default("received")
+  error        String?    @db.Text
+  receivedAt   DateTime   @default(now())
+
+  @@index([connectionId, receivedAt])
+}
+
+// ---------- Ασφάλεια των εσωτερικών κλήσεων ----------
+
+/// Γεγονότα που εφαρμόστηκαν (idempotency: ίδιο id δεύτερη φορά = αγνοείται).
+model InboxEvent {
+  id         String   @id
+  type       String
+  at         DateTime
+  receivedAt DateTime @default(now())
+
+  @@index([receivedAt])
+}
+
+/// Nonce των υπογεγραμμένων αιτημάτων του eshop — μια υπογραφή δεν ξαναχρησιμοποιείται (replay).
+model RequestNonce {
+  nonce     String   @id
+  expiresAt DateTime
+
+  @@index([expiresAt])
+}
